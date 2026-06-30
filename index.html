@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSS Classmates</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,500;0,700;0,900;1,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy:#1B1F3B;
+    --gold:#F2B705;
+    --coral:#FF5A5F;
+    --teal:#00A8A8;
+    --cream:#FFF8E7;
+    --ink:#16161A;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Inter',sans-serif;
+    background-color:var(--cream);
+    color:var(--ink);
+    background-image:
+      radial-gradient(circle at 10% 20%, rgba(255,90,95,0.06) 0, transparent 40%),
+      radial-gradient(circle at 90% 80%, rgba(0,168,168,0.07) 0, transparent 40%),
+      url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='420' height='220' viewBox='0 0 420 220'%3E%3Ctext x='0' y='60' font-family='Arial, sans-serif' font-size='34' font-weight='800' fill='%231B1F3B' fill-opacity='0.045' transform='rotate(-18 210 110)'%3ERSS SET 3%3C/text%3E%3Ctext x='-40' y='170' font-family='Arial, sans-serif' font-size='34' font-weight='800' fill='%231B1F3B' fill-opacity='0.045' transform='rotate(-18 210 110)'%3ERSS SET 3%3C/text%3E%3C/svg%3E");
+    background-repeat:repeat;
+    background-size: 420px 220px, auto, 320px 168px;
+  }
+  @media (max-width:600px){
+    body{ background-size: 420px 220px, auto, 220px 116px; }
+  }
+  a{color:inherit;}
+
+  .hero{
+    background:var(--navy);
+    color:var(--cream);
+    padding:64px 24px 48px;
+    text-align:center;
+    position:relative;
+    overflow:hidden;
+    border-bottom:6px solid var(--gold);
+  }
+  @media (max-width:600px){ .hero{padding:44px 16px 36px;} }
+  .hero::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background-image:repeating-linear-gradient(45deg, rgba(255,255,255,0.025) 0 2px, transparent 2px 14px);
+    pointer-events:none;
+  }
+  .eyebrow{
+    font-weight:700;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    font-size:13px;
+    color:var(--gold);
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-family:'Fraunces',serif;
+    font-weight:900;
+    font-size:clamp(2.6rem,7vw,5rem);
+    margin:0 0 10px;
+    line-height:1;
+  }
+  .hero h1 span{color:var(--coral);}
+  .hero p{
+    max-width:520px;
+    margin:0 auto;
+    font-size:16px;
+    opacity:.85;
+    line-height:1.5;
+  }
+  .stamp{
+    display:inline-block;
+    margin-top:24px;
+    border:2px dashed var(--gold);
+    border-radius:999px;
+    padding:6px 18px;
+    font-size:13px;
+    font-weight:600;
+    letter-spacing:.05em;
+  }
+  .admin-link{
+    position:absolute;
+    top:14px; right:18px;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.06em;
+    text-transform:uppercase;
+    color:rgba(255,248,231,0.5);
+    cursor:pointer;
+    z-index:5;
+    background:none;
+    border:none;
+    padding:6px 10px;
+  }
+  .admin-link:hover{color:var(--gold);}
+  .admin-banner{
+    display:none;
+    background:var(--gold);
+    color:var(--navy);
+    text-align:center;
+    font-weight:700;
+    font-size:13px;
+    padding:8px;
+    letter-spacing:.03em;
+  }
+  .admin-banner.show{display:block;}
+
+  .actionbar{
+    max-width:1100px;
+    margin:-28px auto 0;
+    padding:0 24px;
+    display:flex;
+    justify-content:center;
+    position:relative;
+    z-index:2;
+  }
+  .actionbar button{
+    font-family:'Inter',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:14px 28px;
+    border-radius:14px;
+    border:none;
+    cursor:pointer;
+    background:var(--coral);
+    color:var(--cream);
+    box-shadow:0 8px 0 #c93f43;
+    transition:transform .08s ease;
+    width:100%;
+    max-width:340px;
+  }
+  .actionbar button:hover{transform:translateY(-2px);}
+  .actionbar button:active{transform:translateY(4px); box-shadow:0 4px 0 #c93f43;}
+
+  .wall-wrap{max-width:1100px;margin:56px auto 80px;padding:0 24px;}
+  .wall-heading{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:clamp(1.6rem,3vw,2.2rem);
+    margin-bottom:6px;
+  }
+  .wall-sub{color:#555;margin-bottom:20px;font-size:14px;}
+
+  .controls{
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    margin-bottom:28px;
+  }
+  .controls input, .controls select{
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:10px 14px;
+    border-radius:10px;
+    border:1.5px solid #ddd;
+    background:#fff;
+  }
+  .controls input{flex:1; min-width:160px;}
+  .controls select{cursor:pointer;}
+
+  .group-header{
+    font-family:'Fraunces',serif;
+    font-weight:700;
+    font-size:18px;
+    color:var(--navy);
+    margin:30px 0 14px;
+    padding-bottom:6px;
+    border-bottom:2px solid var(--gold);
+  }
+  .group-header:first-child{margin-top:0;}
+
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+    gap:28px;
+  }
+  @media (max-width:480px){
+    .grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:16px;}
+    .wall-wrap{margin:36px auto 60px;}
+  }
+  .card{
+    background:#fff;
+    border-radius:4px;
+    padding:14px 14px 18px;
+    box-shadow:0 10px 24px rgba(27,31,59,0.12);
+    position:relative;
+    transform:rotate(var(--rot,0deg));
+    transition:transform .2s ease, box-shadow .2s ease;
+    border:1px solid rgba(0,0,0,0.04);
+    cursor:pointer;
+  }
+  .card:hover{transform:rotate(0deg) translateY(-4px); box-shadow:0 16px 30px rgba(27,31,59,0.2); z-index:3;}
+  .card .pin{
+    position:absolute;
+    top:-10px; left:50%;
+    transform:translateX(-50%);
+    width:18px;height:18px;
+    border-radius:50%;
+    background:var(--coral);
+    box-shadow:0 2px 4px rgba(0,0,0,.3);
+  }
+  .new-badge{
+    position:absolute;
+    top:8px; right:8px;
+    background:var(--teal);
+    color:#fff;
+    font-size:10px;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    padding:3px 8px;
+    border-radius:999px;
+    z-index:2;
+  }
+  .photo{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:2px;
+    object-fit:cover;
+    display:block;
+    background:linear-gradient(135deg,var(--teal),var(--navy));
+  }
+  .photo-fallback{
+    width:100%;
+    aspect-ratio:1/1;
+    border-radius:2px;
+    display:flex;align-items:center;justify-content:center;
+    color:#fff;font-family:'Fraunces',serif;font-size:42px;font-weight:700;
+    background:linear-gradient(135deg,var(--teal),var(--navy));
+  }
+  .card h3{
+    font-family:'Fraunces',serif;
+    font-size:19px;
+    margin:12px 0 2px;
+  }
+  .tag{
+    display:inline-block;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.04em;
+    text-transform:uppercase;
+    color:var(--navy);
+    background:var(--gold);
+    padding:2px 8px;
+    border-radius:999px;
+    margin-bottom:8px;
+  }
+  .meta{font-size:13px; line-height:1.5; color:#444;}
+  .meta b{color:var(--ink);}
+  .card-admin-actions{
+    display:none;
+    gap:8px;
+    margin-top:12px;
+    border-top:1px dashed #ddd;
+    padding-top:10px;
+  }
+  body.admin-mode .card-admin-actions{display:flex;}
+  .card-admin-actions button{
+    flex:1;
+    font-size:12px;
+    font-weight:700;
+    padding:8px;
+    border-radius:8px;
+    border:none;
+    cursor:pointer;
+  }
+  .btn-edit{background:var(--teal); color:#fff;}
+  .btn-delete{background:var(--coral); color:#fff;}
+
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:#777;
+    border:2px dashed #ddd;
+    border-radius:16px;
+    background:#fffdf6;
+  }
+
+  .overlay{
+    position:fixed; inset:0;
+    background:rgba(22,22,26,0.6);
+    display:none;
+    align-items:center; justify-content:center;
+    padding:20px;
+    z-index:50;
+  }
+  .overlay.show{display:flex;}
+  .modal{
+    background:var(--cream);
+    border-radius:18px;
+    max-width:460px;
+    width:100%;
+    padding:32px;
+    max-height:90vh;
+    overflow-y:auto;
+    border-top:8px solid var(--coral);
+  }
+  @media (max-width:480px){
+    .overlay{padding:0;}
+    .modal{border-radius:0; max-height:100vh; height:100vh; padding:24px 20px;}
+  }
+  .modal h2{
+    font-family:'Fraunces',serif;
+    margin-top:0;
+    font-size:24px;
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12px;
+    font-weight:700;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+    margin-bottom:5px;
+    color:var(--navy);
+  }
+  .field input, .field textarea{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1.5px solid #ddd;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    background:#fff;
+  }
+  .field input:focus, .field textarea:focus{outline:2px solid var(--teal); border-color:var(--teal);}
+  .field textarea{resize:vertical; min-height:46px;}
+
+  .photo-upload{
+    border:2px dashed var(--teal);
+    border-radius:12px;
+    padding:16px;
+    text-align:center;
+    cursor:pointer;
+    background:rgba(0,168,168,0.05);
+    margin-bottom:6px;
+  }
+  .photo-upload img{
+    max-width:120px;
+    max-height:120px;
+    border-radius:8px;
+    display:block;
+    margin:0 auto 8px;
+    object-fit:cover;
+  }
+  .photo-upload .upload-label{
+    font-size:13px;
+    font-weight:600;
+    color:var(--navy);
+  }
+  .required-star{color:var(--coral);}
+
+  .modal-actions{display:flex; gap:10px; margin-top:18px;}
+  .btn-primary{
+    flex:1;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    padding:12px;
+    border-radius:10px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .btn-primary:disabled{opacity:.6; cursor:not-allowed;}
+  .btn-secondary{
+    background:transparent;
+    border:1.5px solid #ccc;
+    padding:12px 16px;
+    border-radius:10px;
+    cursor:pointer;
+    font-weight:600;
+    color:#555;
+  }
+  .error-msg{color:var(--coral); font-size:13px; margin-top:6px; display:none;}
+  .success-box{
+    background:rgba(0,168,168,0.1);
+    border:1.5px solid var(--teal);
+    border-radius:10px;
+    padding:14px;
+    font-size:13px;
+    line-height:1.5;
+    margin-top:14px;
+    word-break:break-all;
+  }
+  .success-box b{display:block; margin-bottom:6px; color:var(--navy);}
+  .hint{font-size:12px; color:#888; margin-top:-8px; margin-bottom:14px;}
+
+  /* detail modal */
+  .detail-photo{
+    width:100%;
+    max-width:220px;
+    aspect-ratio:1/1;
+    object-fit:cover;
+    border-radius:8px;
+    display:block;
+    margin:0 auto 16px;
+  }
+  .detail-name{
+    font-family:'Fraunces',serif;
+    font-size:26px;
+    text-align:center;
+    margin:0 0 4px;
+  }
+  .detail-tag{display:block; text-align:center; margin-bottom:16px;}
+  .detail-meta{font-size:14px; line-height:1.7; margin-bottom:18px;}
+  .detail-meta b{color:var(--navy);}
+  .comments-section{border-top:1px dashed #ccc; padding-top:16px; margin-top:10px;}
+  .comments-section h4{
+    font-family:'Fraunces',serif;
+    font-size:16px;
+    margin:0 0 12px;
+  }
+  .comment-item{
+    background:#fff;
+    border-radius:8px;
+    padding:10px 12px;
+    margin-bottom:8px;
+    font-size:13px;
+    border:1px solid #eee;
+  }
+  .comment-item b{display:block; font-size:12.5px; color:var(--navy); margin-bottom:2px;}
+  .comment-form{display:flex; flex-direction:column; gap:8px; margin-top:12px;}
+  .comment-form input, .comment-form textarea{
+    padding:8px 10px;
+    border-radius:8px;
+    border:1.5px solid #ddd;
+    font-size:13px;
+    font-family:'Inter',sans-serif;
+  }
+  .comment-form button{
+    align-self:flex-end;
+    background:var(--coral);
+    color:#fff;
+    border:none;
+    padding:8px 16px;
+    border-radius:8px;
+    font-weight:700;
+    cursor:pointer;
+    font-size:13px;
+  }
+  .no-comments{font-size:13px; color:#888; font-style:italic;}
+
+  footer{
+    text-align:center;
+    padding:30px;
+    font-size:12px;
+    color:#888;
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .card, .actionbar button{transition:none;}
+  }
+</style>
+</head>
+<body>
+<div class="overlay show" id="nameGateOverlay" style="z-index:100;">
+  <div class="modal" style="max-width:380px; text-align:center;">
+    <h2 style="margin-bottom:6px;">Welcome to the RSS Wall</h2>
+    <p style="font-size:14px; color:#555; margin-top:0;">Before you go in, tell us who you are.</p>
+    <div class="field" style="text-align:left;">
+      <label for="visitorNameInput">Your name</label>
+      <input id="visitorNameInput" placeholder="e.g. Amaka Obi">
+    </div>
+    <div class="error-msg" id="nameGateErr">Please enter your name.</div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="nameGateSubmit" style="width:100%;">Enter the Wall</button>
+    </div>
+  </div>
+</div>
+
+<div class="hero">
+  <button class="admin-link" id="adminLink">Admin</button>
+  <div class="eyebrow">RSS &middot; Class Memory Wall</div>
+  <h1>We were <span>RSS</span>.</h1>
+  <p>A shared wall for our class — add your page, see who else has shown up, and remember the school that shaped us.</p>
+  <div class="stamp">est. memory, no expiry</div>
+</div>
+<div class="admin-banner" id="adminBanner">Admin mode is on — you can edit or remove any profile below. <button id="exitAdmin" style="margin-left:10px;background:none;border:1px solid var(--navy);border-radius:6px;padding:2px 8px;cursor:pointer;font-weight:700;">Exit</button></div>
+
+<div class="actionbar">
+  <button id="addBtn">+ Add My Profile</button>
+</div>
+
+<div class="wall-wrap">
+  <div class="wall-heading">The Wall</div>
+  <div class="wall-sub" id="countLabel">Loading classmates…</div>
+
+  <div class="controls">
+    <input id="searchBox" placeholder="Search by name…">
+    <select id="classFilter"><option value="">All classes</option></select>
+    <select id="sortMode">
+      <option value="name">Sort: Name (A–Z)</option>
+      <option value="class">Sort: Group by class</option>
+      <option value="newest">Sort: Newest first</option>
+    </select>
+  </div>
+
+  <div id="results"></div>
+</div>
+
+<button id="chatToggle" style="position:fixed;bottom:20px;right:20px;width:58px;height:58px;border-radius:50%;background:var(--coral);color:#fff;border:none;font-size:24px;box-shadow:0 8px 20px rgba(0,0,0,0.25);cursor:pointer;z-index:60;">💬</button>
+
+<div id="chatPanel" style="display:none;position:fixed;bottom:90px;right:20px;width:320px;max-width:90vw;height:440px;max-height:70vh;background:var(--cream);border-radius:16px;box-shadow:0 12px 30px rgba(0,0,0,0.3);z-index:60;flex-direction:column;overflow:hidden;border-top:6px solid var(--coral);">
+  <div style="background:var(--navy);color:#fff;padding:12px 16px;display:flex;justify-content:space-between;align-items:center;">
+    <span style="font-family:'Fraunces',serif;font-weight:700;">Class Chat</span>
+    <button id="chatClose" style="background:none;border:none;color:#fff;font-size:18px;cursor:pointer;">✕</button>
+  </div>
+  <div id="chatMessages" style="flex:1;overflow-y:auto;padding:12px;font-size:13px;"></div>
+  <div style="display:flex;gap:6px;padding:10px;border-top:1px solid #ddd;background:#fff;">
+    <input id="chatInput" placeholder="Type a message…" style="flex:1;padding:8px 10px;border-radius:8px;border:1.5px solid #ddd;font-size:13px;">
+    <button id="chatSend" style="background:var(--coral);color:#fff;border:none;padding:8px 14px;border-radius:8px;font-weight:700;cursor:pointer;">Send</button>
+  </div>
+</div>
+
+<footer>Visible to everyone who opens this page &middot; built for RSS classmates</footer>
+
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <h2 id="modalTitle">Add your page</h2>
+    <div class="hint">This will be visible to anyone who visits this site.</div>
+
+    <div class="field">
+      <label>Your photo <span class="required-star">*</span></label>
+      <div class="photo-upload" id="photoUploadBox">
+        <img id="photoPreview" style="display:none;">
+        <div class="upload-label" id="uploadLabel">Tap to choose a photo</div>
+      </div>
+      <input type="file" id="f-photo" accept="image/*" style="display:none;">
+    </div>
+
+    <div class="field">
+      <label for="f-name">Your name</label>
+      <input id="f-name" placeholder="e.g. Amaka Obi">
+    </div>
+    <div class="field">
+      <label for="f-nickname">Nickname</label>
+      <input id="f-nickname" placeholder="e.g. AJ">
+    </div>
+    <div class="field">
+      <label for="f-classrole">Who you were in class</label>
+      <input id="f-classrole" placeholder="e.g. Class clown, Prefect, The quiet one">
+    </div>
+    <div class="field">
+      <label for="f-class">Class you joined</label>
+      <input id="f-class" placeholder="e.g. JSS1, 2014">
+    </div>
+    <div class="field">
+      <label for="f-bestclass">Best class</label>
+      <input id="f-bestclass" placeholder="e.g. SS2 Gold">
+    </div>
+    <div class="field">
+      <label for="f-bestsubject">Best subject</label>
+      <input id="f-bestsubject" placeholder="e.g. Chemistry">
+    </div>
+    <div class="field">
+      <label for="f-hobby">Hobby</label>
+      <input id="f-hobby" placeholder="e.g. Football, drawing">
+    </div>
+    <div class="field">
+      <label for="f-note">Anything else? (optional)</label>
+      <textarea id="f-note" placeholder="A memory, a message, anything"></textarea>
+    </div>
+    <div class="error-msg" id="errMsg"></div>
+    <div class="success-box" id="successBox" style="display:none;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancelBtn">Cancel</button>
+      <button class="btn-primary" id="saveBtn">Save to Wall</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="adminOverlay">
+  <div class="modal" style="max-width:360px;">
+    <h2>Admin login</h2>
+    <div class="field">
+      <label for="adminPass">Password</label>
+      <input id="adminPass" type="password" placeholder="Enter admin password">
+    </div>
+    <div class="error-msg" id="adminErr">Incorrect password.</div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="adminCancel">Cancel</button>
+      <button class="btn-primary" id="adminSubmit">Unlock</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay" id="detailOverlay">
+  <div class="modal" id="detailModal"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script>
+const SUPABASE_URL = 'https://ggmsblhuquqwudsbmuog.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdnbXNibGh1cXVxd3Vkc2JtdW9nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI4MDQ5MDQsImV4cCI6MjA5ODM4MDkwNH0.XWYCrsE9-ZIf-UJ7iLSm4qh0XAWjEep2YVog5Ouo4ew';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+const ADMIN_PASSWORD = 'RSS-vip-2026';
+
+/* ---- email notifications (EmailJS) ---- */
+const EMAILJS_SERVICE_ID = 'service_5qgc363';
+const EMAILJS_TEMPLATE_ID = 'template_oaoc27h';
+const EMAILJS_PUBLIC_KEY = 'aAF7E0_k5wkQ8hlcA';
+
+(function(){
+  const s = document.createElement('script');
+  s.src = 'https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js';
+  s.onload = () => { if(window.emailjs) emailjs.init({ publicKey: EMAILJS_PUBLIC_KEY }); };
+  document.head.appendChild(s);
+})();
+
+function notifyAdmin(eventType, details){
+  if(EMAILJS_SERVICE_ID.includes('PUT_') ) return; // not configured yet, skip silently
+  if(!window.emailjs) return;
+  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, {
+    event_type: eventType,
+    details: details,
+    time: new Date().toLocaleString()
+  }).catch(err => console.error('Email notify failed', err));
+}
+
+/* ---- visitor name gate ---- */
+const nameGateOverlay = document.getElementById('nameGateOverlay');
+const visitorNameInput = document.getElementById('visitorNameInput');
+const nameGateErr = document.getElementById('nameGateErr');
+
+function getVisitorName(){
+  return localStorage.getItem('rss_visitor_name') || '';
+}
+function setVisitorName(n){
+  localStorage.setItem('rss_visitor_name', n);
+}
+
+const existingVisitor = getVisitorName();
+if(existingVisitor){
+  nameGateOverlay.classList.remove('show');
+  notifyAdmin('Site opened', `${existingVisitor} opened the RSS Wall.`);
+} else {
+  nameGateOverlay.classList.add('show');
+}
+
+document.getElementById('nameGateSubmit').onclick = () => {
+  const val = visitorNameInput.value.trim();
+  if(!val){
+    nameGateErr.style.display = 'block';
+    return;
+  }
+  setVisitorName(val);
+  nameGateOverlay.classList.remove('show');
+  updateGreeting();
+  notifyAdmin('Site opened', `${val} opened the RSS Wall for the first time.`);
+};
+
+function updateGreeting(){
+  const v = getVisitorName();
+  const eyebrow = document.querySelector('.eyebrow');
+  if(v && eyebrow) eyebrow.textContent = `RSS · Welcome, ${v}`;
+}
+updateGreeting();
+
+const overlay = document.getElementById('overlay');
+const countLabel = document.getElementById('countLabel');
+const errMsg = document.getElementById('errMsg');
+const successBox = document.getElementById('successBox');
+const photoUploadBox = document.getElementById('photoUploadBox');
+const photoInput = document.getElementById('f-photo');
+const photoPreview = document.getElementById('photoPreview');
+const uploadLabel = document.getElementById('uploadLabel');
+const saveBtn = document.getElementById('saveBtn');
+const modalTitle = document.getElementById('modalTitle');
+const results = document.getElementById('results');
+const searchBox = document.getElementById('searchBox');
+const classFilter = document.getElementById('classFilter');
+const sortMode = document.getElementById('sortMode');
+const detailOverlay = document.getElementById('detailOverlay');
+const detailModal = document.getElementById('detailModal');
+
+let selectedFile = null;
+let editingId = null;
+let editingToken = null;
+let currentProfiles = [];
+
+document.getElementById('addBtn').onclick = () => openModal();
+document.getElementById('cancelBtn').onclick = () => closeModal();
+overlay.addEventListener('click', e => { if(e.target === overlay) closeModal(); });
+detailOverlay.addEventListener('click', e => { if(e.target === detailOverlay) detailOverlay.classList.remove('show'); });
+
+photoUploadBox.onclick = () => photoInput.click();
+photoInput.onchange = () => {
+  const file = photoInput.files[0];
+  if(!file) return;
+  selectedFile = file;
+  const reader = new FileReader();
+  reader.onload = e => {
+    photoPreview.src = e.target.result;
+    photoPreview.style.display = 'block';
+    uploadLabel.textContent = 'Tap to change photo';
+  };
+  reader.readAsDataURL(file);
+};
+
+function openModal(profile, token){
+  errMsg.style.display = 'none';
+  successBox.style.display = 'none';
+  selectedFile = null;
+  photoInput.value = '';
+  photoPreview.style.display = 'none';
+  uploadLabel.textContent = 'Tap to choose a photo';
+  saveBtn.style.display = 'inline-block';
+
+  if(profile){
+    editingId = profile.id;
+    editingToken = token || null;
+    modalTitle.textContent = 'Edit profile';
+    document.getElementById('f-name').value = profile.name || '';
+    document.getElementById('f-nickname').value = profile.nickname || '';
+    document.getElementById('f-classrole').value = profile.class_role || '';
+    document.getElementById('f-class').value = profile.class_joined || '';
+    document.getElementById('f-bestclass').value = profile.best_class || '';
+    document.getElementById('f-bestsubject').value = profile.best_subject || '';
+    document.getElementById('f-hobby').value = profile.hobby || '';
+    document.getElementById('f-note').value = profile.note || '';
+    if(profile.avatar_url){
+      photoPreview.src = profile.avatar_url;
+      photoPreview.style.display = 'block';
+      uploadLabel.textContent = 'Tap to change photo';
+    }
+  } else {
+    editingId = null;
+    editingToken = null;
+    modalTitle.textContent = 'Add your page';
+    ['f-name','f-nickname','f-classrole','f-class','f-bestclass','f-bestsubject','f-hobby','f-note'].forEach(id => document.getElementById(id).value = '');
+    const v = getVisitorName();
+    if(v) document.getElementById('f-name').value = v;
+  }
+  overlay.classList.add('show');
+}
+
+function closeModal(){
+  overlay.classList.remove('show');
+  errMsg.style.display = 'none';
+}
+
+function initials(name){
+  return (name||'').trim().split(/\s+/).slice(0,2).map(w=>w[0]?.toUpperCase()).join('');
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str ?? '';
+  return d.innerHTML;
+}
+
+function isNew(createdAt){
+  if(!createdAt) return false;
+  const days = (Date.now() - new Date(createdAt).getTime()) / (1000*60*60*24);
+  return days <= 7;
+}
+
+function cardHTML(p, rot){
+  const photoBlock = p.avatar_url
+    ? `<img class="photo" src="${p.avatar_url}" alt="${escapeHtml(p.name)}">`
+    : `<div class="photo-fallback">${initials(p.name)}</div>`;
+  return `
+    <div class="card" style="--rot:${rot}deg" data-id="${p.id}">
+      ${isNew(p.created_at) ? '<div class="new-badge">New</div>' : ''}
+      <div class="pin"></div>
+      ${photoBlock}
+      <span class="tag">${escapeHtml(p.class_joined || 'RSS')}</span>
+      <h3>${escapeHtml(p.name)}${p.nickname ? ` <span style="font-size:13px;color:#888;font-weight:400;">"${escapeHtml(p.nickname)}"</span>` : ''}</h3>
+      ${p.class_role ? `<div style="font-size:12px;color:var(--coral);font-weight:600;margin-bottom:4px;">${escapeHtml(p.class_role)}</div>` : ''}
+      <div class="meta">
+        <div><b>Best class:</b> ${escapeHtml(p.best_class || '—')}</div>
+        <div><b>Best subject:</b> ${escapeHtml(p.best_subject || '—')}</div>
+        <div><b>Hobby:</b> ${escapeHtml(p.hobby || '—')}</div>
+      </div>
+      <div class="card-admin-actions">
+        <button class="btn-edit" data-action="edit" data-id="${p.id}">Edit</button>
+        <button class="btn-delete" data-action="delete" data-id="${p.id}">Delete</button>
+      </div>
+    </div>
+  `;
+}
+
+function getFiltered(){
+  const q = searchBox.value.trim().toLowerCase();
+  const cls = classFilter.value;
+  let list = currentProfiles.filter(p => {
+    const matchesQ = !q || (p.name||'').toLowerCase().includes(q);
+    const matchesCls = !cls || p.class_joined === cls;
+    return matchesQ && matchesCls;
+  });
+  const mode = sortMode.value;
+  if(mode === 'name'){
+    list.sort((a,b)=> (a.name||'').localeCompare(b.name||''));
+  } else if(mode === 'newest'){
+    list.sort((a,b)=> new Date(b.created_at) - new Date(a.created_at));
+  } else if(mode === 'class'){
+    list.sort((a,b)=> (a.class_joined||'').localeCompare(b.class_joined||'') || (a.name||'').localeCompare(b.name||''));
+  }
+  return list;
+}
+
+function wallCountText(){
+  const v = getVisitorName();
+  const n = currentProfiles.length;
+  const base = `${n} classmate${n===1?'':'s'} on the wall`;
+  return v ? `Hey ${v} — ${base}` : base;
+}
+
+function render(){
+  const list = getFiltered();
+  if(currentProfiles.length === 0){
+    results.innerHTML = '<div class="empty">The wall is empty. Add your profile to start it.</div>';
+    countLabel.textContent = 'No one has added their page yet — be the first.';
+    return;
+  }
+  if(list.length === 0){
+    results.innerHTML = '<div class="empty">No matches. Try a different search or filter.</div>';
+    countLabel.textContent = wallCountText();
+    return;
+  }
+  countLabel.textContent = wallCountText();
+
+  if(sortMode.value === 'class'){
+    let html = '';
+    let lastClass = null;
+    list.forEach((p,i) => {
+      const cls = p.class_joined || 'Unspecified';
+      if(cls !== lastClass){
+        html += `<div class="group-header">${escapeHtml(cls)}</div><div class="grid">`;
+        if(lastClass !== null) html = html; // no-op marker
+        lastClass = cls;
+      }
+      html += cardHTML(p, (i%2===0? -1.4 : 1.6));
+      const isLastOfGroup = (i === list.length-1) || (list[i+1].class_joined || 'Unspecified') !== cls;
+      if(isLastOfGroup) html += '</div>';
+    });
+    results.innerHTML = html;
+  } else {
+    results.innerHTML = `<div class="grid">${list.map((p,i)=> cardHTML(p,(i%2===0?-1.4:1.6))).join('')}</div>`;
+  }
+}
+
+function refreshClassFilterOptions(){
+  const classes = Array.from(new Set(currentProfiles.map(p=>p.class_joined).filter(Boolean))).sort();
+  const current = classFilter.value;
+  classFilter.innerHTML = '<option value="">All classes</option>' + classes.map(c=>`<option value="${escapeHtml(c)}">${escapeHtml(c)}</option>`).join('');
+  if(classes.includes(current)) classFilter.value = current;
+}
+
+searchBox.addEventListener('input', render);
+classFilter.addEventListener('change', render);
+sortMode.addEventListener('change', render);
+
+async function loadProfiles(){
+  try{
+    const { data, error } = await sb.from('profiles').select('*').order('name', { ascending: true });
+    if(error) throw error;
+    currentProfiles = data || [];
+    refreshClassFilterOptions();
+    render();
+    checkEditLink();
+  }catch(e){
+    countLabel.textContent = 'Could not load the wall right now.';
+    console.error(e);
+  }
+}
+
+results.addEventListener('click', async (e) => {
+  const btn = e.target.closest('button[data-action]');
+  if(btn){
+    e.stopPropagation();
+    const id = btn.dataset.id;
+    const profile = currentProfiles.find(p => String(p.id) === String(id));
+    if(!profile) return;
+    if(btn.dataset.action === 'edit'){
+      openModal(profile);
+    } else if(btn.dataset.action === 'delete'){
+      if(confirm(`Remove ${profile.name} from the wall?`)){
+        const { error } = await sb.from('profiles').delete().eq('id', id);
+        if(error){ alert('Could not delete. Try again.'); console.error(error); return; }
+        loadProfiles();
+      }
+    }
+    return;
+  }
+  const card = e.target.closest('.card');
+  if(card){
+    const id = card.dataset.id;
+    const profile = currentProfiles.find(p => String(p.id) === String(id));
+    if(profile) openDetail(profile);
+  }
+});
+
+async function uploadPhoto(file){
+  const ext = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).slice(2,8)}.${ext}`;
+  const { error: uploadError } = await sb.storage.from('avatars').upload(fileName, file);
+  if(uploadError) throw uploadError;
+  const { data } = sb.storage.from('avatars').getPublicUrl(fileName);
+  return data.publicUrl;
+}
+
+saveBtn.onclick = async () => {
+  const name = document.getElementById('f-name').value.trim();
+  const nickname = document.getElementById('f-nickname').value.trim();
+  const classRole = document.getElementById('f-classrole').value.trim();
+  const classJoined = document.getElementById('f-class').value.trim();
+  const bestClass = document.getElementById('f-bestclass').value.trim();
+  const bestSubject = document.getElementById('f-bestsubject').value.trim();
+  const hobby = document.getElementById('f-hobby').value.trim();
+  const note = document.getElementById('f-note').value.trim();
+
+  if(!name){
+    errMsg.textContent = 'Please enter your name.';
+    errMsg.style.display = 'block';
+    return;
+  }
+  if(!selectedFile && !editingId){
+    errMsg.textContent = 'A photo is required to save your profile.';
+    errMsg.style.display = 'block';
+    return;
+  }
+
+  saveBtn.disabled = true;
+  saveBtn.textContent = 'Saving…';
+
+  try{
+    let avatarUrl = editingId ? (currentProfiles.find(p=>String(p.id)===String(editingId))?.avatar_url || null) : null;
+    if(selectedFile){
+      avatarUrl = await uploadPhoto(selectedFile);
+    }
+    if(!avatarUrl){
+      errMsg.textContent = 'A photo is required to save your profile.';
+      errMsg.style.display = 'block';
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save to Wall';
+      return;
+    }
+
+    const profile = {
+      name,
+      nickname,
+      class_role: classRole,
+      class_joined: classJoined,
+      best_class: bestClass,
+      best_subject: bestSubject,
+      hobby,
+      note,
+      avatar_url: avatarUrl
+    };
+
+    if(editingId){
+      const { error } = await sb.from('profiles').update(profile).eq('id', editingId);
+      if(error){
+        errMsg.textContent = 'Something went wrong saving your profile. Try again.';
+        errMsg.style.display = 'block';
+        console.error(error);
+        return;
+      }
+      closeModal();
+      loadProfiles();
+    } else {
+      const { data, error } = await sb.from('profiles').insert([profile]).select();
+      if(error){
+        errMsg.textContent = 'Something went wrong saving your profile. Try again.';
+        errMsg.style.display = 'block';
+        console.error(error);
+        return;
+      }
+      const newRow = data && data[0];
+      loadProfiles();
+      notifyAdmin('Profile added', `${name} added a profile (class: ${classJoined || 'n/a'}).`);
+      if(newRow && newRow.edit_token){
+        const link = `${location.origin}${location.pathname}?edit=${newRow.edit_token}`;
+        successBox.innerHTML = `<b>Saved! Keep this link to edit your profile later:</b>${escapeHtml(link)}`;
+        successBox.style.display = 'block';
+        saveBtn.style.display = 'none';
+      } else {
+        closeModal();
+      }
+    }
+  }catch(e){
+    errMsg.textContent = 'Could not save right now. Please try again.';
+    errMsg.style.display = 'block';
+    console.error(e);
+  }finally{
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'Save to Wall';
+  }
+};
+
+function checkEditLink(){
+  const params = new URLSearchParams(location.search);
+  const token = params.get('edit');
+  if(!token) return;
+  const profile = currentProfiles.find(p => p.edit_token === token);
+  if(profile){
+    openModal(profile, token);
+  }
+}
+
+/* override save to use token-based update when editingToken set, bypassing need for admin */
+const originalSave = saveBtn.onclick;
+saveBtn.onclick = async function(){
+  if(editingId && editingToken){
+    const name = document.getElementById('f-name').value.trim();
+    const nickname = document.getElementById('f-nickname').value.trim();
+    const classRole = document.getElementById('f-classrole').value.trim();
+    const classJoined = document.getElementById('f-class').value.trim();
+    const bestClass = document.getElementById('f-bestclass').value.trim();
+    const bestSubject = document.getElementById('f-bestsubject').value.trim();
+    const hobby = document.getElementById('f-hobby').value.trim();
+    const note = document.getElementById('f-note').value.trim();
+    if(!name){
+      errMsg.textContent = 'Please enter your name.';
+      errMsg.style.display = 'block';
+      return;
+    }
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'Saving…';
+    try{
+      let avatarUrl = currentProfiles.find(p=>String(p.id)===String(editingId))?.avatar_url || null;
+      if(selectedFile) avatarUrl = await uploadPhoto(selectedFile);
+      const { error } = await sb.from('profiles').update({
+        name, nickname, class_role: classRole, class_joined: classJoined, best_class: bestClass,
+        best_subject: bestSubject, hobby, note, avatar_url: avatarUrl
+      }).eq('id', editingId).eq('edit_token', editingToken);
+      if(error){
+        errMsg.textContent = 'Something went wrong. Try again.';
+        errMsg.style.display = 'block';
+        return;
+      }
+      closeModal();
+      loadProfiles();
+    }catch(e){
+      errMsg.textContent = 'Could not save right now.';
+      errMsg.style.display = 'block';
+    }finally{
+      saveBtn.disabled = false;
+      saveBtn.textContent = 'Save to Wall';
+    }
+    return;
+  }
+  return originalSave();
+};
+
+/* ---- detail modal + comments ---- */
+async function openDetail(profile){
+  const photoBlock = profile.avatar_url
+    ? `<img class="detail-photo" src="${profile.avatar_url}" alt="${escapeHtml(profile.name)}">`
+    : `<div class="photo-fallback detail-photo">${initials(profile.name)}</div>`;
+  detailModal.innerHTML = `
+    ${photoBlock}
+    <div class="detail-name">${escapeHtml(profile.name)}${profile.nickname ? ` <span style="font-size:16px;color:#888;font-weight:400;">"${escapeHtml(profile.nickname)}"</span>` : ''}</div>
+    ${profile.class_role ? `<div style="text-align:center;color:var(--coral);font-weight:600;font-size:13px;margin-bottom:8px;">${escapeHtml(profile.class_role)}</div>` : ''}
+    <span class="tag detail-tag" style="display:inline-block;margin:0 auto 16px;text-align:center;">${escapeHtml(profile.class_joined || 'RSS')}</span>
+    <div class="detail-meta">
+      <div><b>Best class:</b> ${escapeHtml(profile.best_class || '—')}</div>
+      <div><b>Best subject:</b> ${escapeHtml(profile.best_subject || '—')}</div>
+      <div><b>Hobby:</b> ${escapeHtml(profile.hobby || '—')}</div>
+      ${profile.note ? `<div style="margin-top:8px;font-style:italic;">"${escapeHtml(profile.note)}"</div>` : ''}
+    </div>
+    <div class="comments-section">
+      <h4>Guestbook</h4>
+      <div id="commentsList"><div class="no-comments">Loading…</div></div>
+      <div class="comment-form">
+        <input id="commentName" placeholder="Your name">
+        <textarea id="commentMsg" placeholder="Leave a message…" rows="2"></textarea>
+        <button id="commentSubmit">Post</button>
+      </div>
+    </div>
+    <div class="modal-actions" style="margin-top:20px;">
+      <button class="btn-secondary" id="detailClose" style="flex:1;">Close</button>
+    </div>
+  `;
+  detailOverlay.classList.add('show');
+  document.getElementById('detailClose').onclick = () => detailOverlay.classList.remove('show');
+
+  await loadComments(profile.id);
+
+  document.getElementById('commentSubmit').onclick = async () => {
+    const authorName = document.getElementById('commentName').value.trim();
+    const message = document.getElementById('commentMsg').value.trim();
+    if(!authorName || !message) return;
+    const { error } = await sb.from('comments').insert([{ profile_id: profile.id, author_name: authorName, message }]);
+    if(!error){
+      document.getElementById('commentName').value = '';
+      document.getElementById('commentMsg').value = '';
+      loadComments(profile.id);
+    }
+  };
+}
+
+async function loadComments(profileId){
+  const listEl = document.getElementById('commentsList');
+  const { data, error } = await sb.from('comments').select('*').eq('profile_id', profileId).order('created_at', { ascending: true });
+  if(error || !data || data.length === 0){
+    listEl.innerHTML = '<div class="no-comments">No messages yet. Be the first to leave one.</div>';
+    return;
+  }
+  listEl.innerHTML = data.map(c => `<div class="comment-item"><b>${escapeHtml(c.author_name)}</b>${escapeHtml(c.message)}</div>`).join('');
+}
+
+/* ---- admin ---- */
+const adminOverlay = document.getElementById('adminOverlay');
+const adminBanner = document.getElementById('adminBanner');
+
+document.getElementById('adminLink').onclick = () => {
+  if(document.body.classList.contains('admin-mode')) return;
+  adminOverlay.classList.add('show');
+};
+document.getElementById('adminCancel').onclick = () => adminOverlay.classList.remove('show');
+adminOverlay.addEventListener('click', e => { if(e.target === adminOverlay) adminOverlay.classList.remove('show'); });
+
+document.getElementById('adminSubmit').onclick = () => {
+  const val = document.getElementById('adminPass').value;
+  if(val === ADMIN_PASSWORD){
+    document.body.classList.add('admin-mode');
+    adminBanner.classList.add('show');
+    adminOverlay.classList.remove('show');
+    document.getElementById('adminPass').value = '';
+    document.getElementById('adminErr').style.display = 'none';
+    sessionStorage.setItem('rss_admin', '1');
+  } else {
+    document.getElementById('adminErr').style.display = 'block';
+  }
+};
+
+document.getElementById('exitAdmin').onclick = () => {
+  document.body.classList.remove('admin-mode');
+  adminBanner.classList.remove('show');
+  sessionStorage.removeItem('rss_admin');
+};
+
+if(sessionStorage.getItem('rss_admin') === '1'){
+  document.body.classList.add('admin-mode');
+  adminBanner.classList.add('show');
+}
+
+loadProfiles();
+
+/* ---- group chat ---- */
+const chatToggle = document.getElementById('chatToggle');
+const chatPanel = document.getElementById('chatPanel');
+const chatClose = document.getElementById('chatClose');
+const chatMessages = document.getElementById('chatMessages');
+const chatInput = document.getElementById('chatInput');
+const chatSend = document.getElementById('chatSend');
+
+let chatPollTimer = null;
+let lastChatCount = 0;
+
+chatToggle.onclick = () => {
+  const isOpen = chatPanel.style.display === 'flex';
+  if(isOpen){
+    chatPanel.style.display = 'none';
+    if(chatPollTimer) clearInterval(chatPollTimer);
+  } else {
+    chatPanel.style.display = 'flex';
+    loadChat();
+    chatPollTimer = setInterval(loadChat, 5000);
+  }
+};
+chatClose.onclick = () => {
+  chatPanel.style.display = 'none';
+  if(chatPollTimer) clearInterval(chatPollTimer);
+};
+
+async function loadChat(){
+  const { data, error } = await sb.from('chat_messages').select('*').order('created_at', { ascending: true }).limit(200);
+  if(error || !data) return;
+  if(data.length === 0){
+    chatMessages.innerHTML = '<div style="color:#888;font-style:italic;text-align:center;margin-top:20px;">No messages yet. Say hi!</div>';
+    return;
+  }
+  chatMessages.innerHTML = data.map(m => `
+    <div style="margin-bottom:10px;">
+      <b style="color:var(--navy);">${escapeHtml(m.sender_name)}</b>
+      <span style="color:#999;font-size:11px;margin-left:6px;">${new Date(m.created_at).toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'})}</span>
+      <div>${escapeHtml(m.message)}</div>
+    </div>
+  `).join('');
+  chatMessages.scrollTop = chatMessages.scrollHeight;
+  lastChatCount = data.length;
+}
+
+async function sendChatMessage(){
+  const msg = chatInput.value.trim();
+  if(!msg) return;
+  const sender = getVisitorName() || 'Anonymous';
+  chatSend.disabled = true;
+  const { error } = await sb.from('chat_messages').insert([{ sender_name: sender, message: msg }]);
+  chatSend.disabled = false;
+  if(error){ console.error(error); return; }
+  chatInput.value = '';
+  loadChat();
+  notifyAdmin('New chat message', `${sender}: ${msg}`);
+}
+
+chatSend.onclick = sendChatMessage;
+chatInput.addEventListener('keydown', e => { if(e.key === 'Enter') sendChatMessage(); });
+</script>
+
+</body>
+</html>
